@@ -10,6 +10,9 @@ function Login() {
   const handleClick = () => setShow(!show);
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+const handleLogin= ()=>{
+  console.log(email,password)
+}
 
   return (
     <VStack spacing="10px">
@@ -38,7 +41,7 @@ function Login() {
           </InputRightElement>
         </InputGroup>
       </FormControl>
-      <Button
+      <Button onClick={handleLogin}
         colorScheme="blue"
         width="100%"
         style={{ marginTop: 15 }}
