@@ -1,27 +1,23 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import axios from 'axios'
-import { useEffect } from 'react';
-import { useState } from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+import Home from './pages/Home'
+import Chat from './pages/Chat'
 function App() {
-  const [chat,setChat] = useState([]);
-  const handle = async () => {
-    let{ data }= await axios.get('/api')
-    setChat(data)
-    console.log(data);
-  }
- 
-  useEffect(() => {
-    handle()
-  }, [])
+
   return (
     <div className="App">
-      <h1>hello</h1>
-      {
-        chat.map((chat)=>{
-          return <div>{chat.name}</div>
-        })
-      }
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />}> </Route>
+          <Route path="/chat" element={<Chat />}> </Route>
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
