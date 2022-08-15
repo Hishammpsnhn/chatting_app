@@ -1,22 +1,47 @@
-import React from 'react'
+import React from "react";
 import { Button } from "@chakra-ui/button";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
 import { VStack } from "@chakra-ui/layout";
 import { useState } from "react";
+import { useToast } from "@chakra-ui/react";
+import FileBase64 from "react-file-base64";
 
 function Signup() {
-  const [name, setName] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
-  const [confirmPassword, setconfirmPassword] = useState()
-  const [pic, setPic] = useState();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setconfirmPassword] = useState('');
+  const [pic, setPic] = useState('');
   const [show, setShow] = useState(false);
+  const toast = useToast();
 
   const handleClick = () => setShow(!show);
+
   const handleLogin = () => {
-    console.log(email, password, password, confirmPassword)
-  }
+    console.log(name,email, password, confirmPassword);
+    if(!name || !email || !password || !confirmPassword){
+      toast({
+        title: 'Please fill all the feilds',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+        position:'top'
+      })
+      return;
+    }
+    if(password !== confirmPassword){
+      toast({
+        title: 'Password and confirmPassword do not match',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+        position:'top'
+      })
+    } 
+  };
+
+
   return (
     <VStack spacing="10px">
       <FormControl id="name" isRequired>
@@ -71,21 +96,23 @@ function Signup() {
       </FormControl>
       <FormControl id="pic">
         <FormLabel>profile</FormLabel>
-        <Input
-          value={pic}
+        <FileBase64
           type="file"
-          onChange={(e) => setPic(e.target.value)}
+          multiple={false}
+          onDone={({ base64 }) => setPic(base64)}
         />
       </FormControl>
-      <Button onClick={handleLogin}
+      <Button
+        onClick={handleLogin}
         colorScheme="blue"
         width="100%"
         style={{ marginTop: 15 }}
+        // isloading={loading}
       >
         Sign Up
       </Button>
     </VStack>
-  )
+  );
 }
 
-export default Signup
+export default Signup;
