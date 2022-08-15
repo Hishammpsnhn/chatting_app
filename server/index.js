@@ -1,23 +1,20 @@
 const express = require("express")
 const dotenv = require("dotenv")
 const connectDb = require("./config/db.js")
+const userRoutes = require("./Routes/userRouter")
+dotenv.config();
 
 connectDb()
-dotenv.config();
 const app = express();
+app.use(express.json());//accept json data
 
 app.get("/", (req, res) => {
     res.send("chatting app server  ")
 })
-app.get("/api", (req, res) => {
-    const data = [{
-        _id: 5454454546,
-        name: "hisham",
-        age: 19
-    }] 
-    res.send(data)
-    res.json(data)
-})
+app.use("/api/user",userRoutes)
+// app.get("/api/user",(req, res) => {
+//     res.send("chatting app server 545");
+// })
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => {

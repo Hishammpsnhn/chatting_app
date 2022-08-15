@@ -9,15 +9,16 @@ function Signup() {
   const [name, setName] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-  const [confirmPassword,setconfirmPassword] = useState()
+  const [confirmPassword, setconfirmPassword] = useState()
+  const [pic, setPic] = useState();
   const [show, setShow] = useState(false);
- 
+
   const handleClick = () => setShow(!show);
   const handleLogin = () => {
-    console.log(email, password,password,confirmPassword)
+    console.log(email, password, password, confirmPassword)
   }
   return (
-    <VStack spacing="100px">
+    <VStack spacing="10px">
       <FormControl id="name" isRequired>
         <FormLabel>First Name</FormLabel>
         <Input
@@ -67,6 +68,14 @@ function Signup() {
             </Button>
           </InputRightElement>
         </InputGroup>
+      </FormControl>
+      <FormControl id="pic">
+        <FormLabel>profile</FormLabel>
+        <Input
+          value={pic}
+          type="file"
+          onChange={(e) => setPic(e.target.value)}
+        />
       </FormControl>
       <Button onClick={handleLogin}
         colorScheme="blue"
