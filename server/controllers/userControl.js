@@ -34,13 +34,17 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+  console.log(email, password);
   if (!email || !password) {
     res.status(400);
     throw new Error("Please Enter all the feilds");
   }
   const existingUser = await userModel.findOne({ email });
   if (!existingUser) throw new Error("user does not exist");
-  const isPasswordCorrect = await bcrypt.compare(password, existingUser.password);
+  const isPasswordCorrect = await bcrypt.compare(
+    password,
+    existingUser.password
+  );
   if (!isPasswordCorrect) throw new Error("Incorrect Password");
   if (isPasswordCorrect) {
     res.status(201).json({
@@ -56,4 +60,18 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { registerUser, loginUser };
+const allUsers = asyncHandler(async (req, res) => {
+  const keyword = req.query.search
+    ? {
+        $or: [
+          { name: { $regex: req.query.search, $options: "1" } },
+          { email: { $regex: req.query.search, $options: "1" } },
+        ],
+      }
+    : {};
+  console.log(keyword);
+  const user = await userModel.find(keyword).find({_id:{$ne: req.query._id}})
+      res.send(user)
+});
+
+module.exports = { registerUser, loginUser, allUsers };

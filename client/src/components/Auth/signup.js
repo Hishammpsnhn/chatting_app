@@ -6,41 +6,71 @@ import { VStack } from "@chakra-ui/layout";
 import { useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import FileBase64 from "react-file-base64";
-
+import axios from "axios";
 function Signup() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setconfirmPassword] = useState('');
-  const [pic, setPic] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setconfirmPassword] = useState("");
+  const [pic, setPic] = useState("");
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
   const toast = useToast();
 
   const handleClick = () => setShow(!show);
 
-  const handleLogin = () => {
-    console.log(name,email, password, confirmPassword);
-    if(!name || !email || !password || !confirmPassword){
+  const handleLogin = async() => {
+    console.log(name, email, password, confirmPassword);
+    if (!name || !email || !password || !confirmPassword) {
       toast({
-        title: 'Please fill all the feilds',
-        status: 'warning',
+        title: "Please fill all the feilds",
+        status: "warning",
         duration: 5000,
         isClosable: true,
-        position:'top'
-      })
+        position: "top",
+      });
       return;
     }
-    if(password !== confirmPassword){
+    if (password !== confirmPassword) {
       toast({
-        title: 'Password and confirmPassword do not match',
-        status: 'warning',
+        title: "Password and confirmPassword do not match",
+        status: "warning",
         duration: 5000,
         isClosable: true,
-        position:'top'
-      })
-    } 
-  };
+        position: "top",
+      });
+      return;
+    }
+    try {
+      const config = {
+        headers: {
+          "content-type": "application/json",
+        },
+      };
+      setLoading(true)
+      const {data} = await axios.post("/api/user",{name,password,email,pic}, config)
+      toast({
+        title: "Registered successfully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      localStorage.setItem("users", JSON.stringify(data));
+      setLoading(false)
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Registered failed",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
 
+    }
+  };
 
   return (
     <VStack spacing="10px">
@@ -107,7 +137,7 @@ function Signup() {
         colorScheme="blue"
         width="100%"
         style={{ marginTop: 15 }}
-        // isloading={loading}
+         isLoading={loading}
       >
         Sign Up
       </Button>

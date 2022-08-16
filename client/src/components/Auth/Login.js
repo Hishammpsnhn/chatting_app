@@ -1,18 +1,65 @@
-import React from 'react'
+import React, { useState } from "react";
 import { Button } from "@chakra-ui/button";
 import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input, InputGroup, InputRightElement } from "@chakra-ui/input";
 import { VStack } from "@chakra-ui/layout";
-import { useState } from "react";
+import { useToast } from "@chakra-ui/react";
+import axios from "axios";
 
 function Login() {
   const [show, setShow] = useState(false);
-  const handleClick = () => setShow(!show);
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-const handleLogin= ()=>{
-  console.log(email,password)
-}
+  const [loading, setLoading] = useState(false);
+  const handleClick = () => setShow(!show);
+  const toast = useToast();
+  const handleLogin = async () => {
+    console.log(email, password);
+    if (!email || !password) {
+      toast({
+        title: "Please fill all the feilds",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+    try {
+      const config = {
+        headers: {
+          "content-type": "application/json",
+        },
+      };
+      setLoading(true);
+      const { data } = await axios.post(
+        "/api/user/login",
+        { email, password },
+        config
+      );
+      toast({
+        title: "Registered successfully",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      localStorage.setItem("users", JSON.stringify(data));
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Registered failed",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      setLoading(false);
+      return;
+
+    }
+  };
 
   return (
     <VStack spacing="10px">
@@ -41,23 +88,25 @@ const handleLogin= ()=>{
           </InputRightElement>
         </InputGroup>
       </FormControl>
-      <Button onClick={handleLogin}
+      <Button
+        onClick={handleLogin}
         colorScheme="blue"
         width="100%"
         style={{ marginTop: 15 }}
+        isLoading={loading}
       >
         Login
       </Button>
-      <Button
-        variant="solid"
-        colorScheme="red"
-        width="100%"
+      <Button variant="solid" colorScheme="red" width="100%"
+      onClick={()=>{
+        setEmail("demo@example.com");
+        setPassword("123");
+      }}
       >
         Get Guest User Credentials
       </Button>
     </VStack>
   );
-
 }
 
-export default Login
+export default Login;
