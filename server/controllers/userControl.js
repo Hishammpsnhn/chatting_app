@@ -61,6 +61,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const allUsers = asyncHandler(async (req, res) => {
+ console.log("all user callled")
   const keyword = req.query.search
     ? {
         $or: [
