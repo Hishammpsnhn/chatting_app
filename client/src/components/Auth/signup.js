@@ -7,6 +7,8 @@ import { useState } from "react";
 import { useToast } from "@chakra-ui/react";
 import FileBase64 from "react-file-base64";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,7 +18,7 @@ function Signup() {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
-
+  const navigate = useNavigate();
   const handleClick = () => setShow(!show);
 
   const handleLogin = async() => {
@@ -56,8 +58,9 @@ function Signup() {
         isClosable: true,
         position: "top",
       });
-      localStorage.setItem("users", JSON.stringify(data));
+      localStorage.setItem("user", JSON.stringify(data));
       setLoading(false)
+      navigate('/chat');
     } catch (error) {
       console.log(error);
       toast({
