@@ -5,7 +5,7 @@ const { findById, findByIdAndUpdate } = require("../models/chatModels");
 
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
-  console.log(userId, req.user._id);
+  console.log("suer",userId, req.user._id);
   if (!userId) {
     console.log("userId param not sent with request");
     return res.status(400);

@@ -34,7 +34,6 @@ const registerUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
-  console.log(email, password);
   if (!email || !password) {
     res.status(400);
     throw new Error("Please Enter all the feilds");
@@ -61,7 +60,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const allUsers = asyncHandler(async (req, res) => {
- console.log("all user callled")
+
   const keyword = req.query.search
     ? {
         $or: [
@@ -70,7 +69,7 @@ const allUsers = asyncHandler(async (req, res) => {
         ],
       }
     : {};
-  console.log(keyword);
+ 
   const user = await userModel.find(keyword).find({_id:{$ne: req.query._id}})
       res.send(user)
 });

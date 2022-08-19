@@ -1,0 +1,14 @@
+.App{
+ min-height: 100vh;
+ display: flex;
+ /* background-image: url("");    */
+background-size: cover;
+background-position: center;
+background-color: rgb(224, 212, 212);
+
+}
+::-webkit-scrollbar{
+    width: 0px;
+}
+
+
