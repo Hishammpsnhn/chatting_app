@@ -5,7 +5,6 @@ const { findById, findByIdAndUpdate } = require("../models/chatModels");
 
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
-  console.log("suer",userId, req.user._id);
   if (!userId) {
     console.log("userId param not sent with request");
     return res.status(400);
@@ -21,7 +20,6 @@ const accessChat = asyncHandler(async (req, res) => {
     })
     .populate("users", "-password")
     .populate("latestMessage");
-  console.log(isChat);
   isChat = await Users.populate(isChat, {
     path: "latestMessage.sender",
     select: "name pic email",
@@ -60,6 +58,7 @@ const fetchChat = asyncHandler(async (req, res) => {
           path: "latestMessage.sender",
           select: "name pic email",
         });
+        
         res.status(200).send(result);
       });
   } catch (error) {
