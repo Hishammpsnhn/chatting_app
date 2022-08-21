@@ -22,7 +22,7 @@ import { ChatState } from "../../Context/ChatProvider";
 import UserListItem from "../UserAvathar/UserListItem";
 import UserBadgeItem from "../UserAvathar/UserBadgeItem";
 
-const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
+const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain,fetchMessages }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [groupChatName, setGroupChatName] = useState();
   const [search, setSearch] = useState("");
@@ -32,7 +32,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
   const toast = useToast();
 
   const { selectedChat, setSelectedChat, user } = ChatState();
-  console.log(selectedChat);
+ 
   const handleSearch = async (query) => {
     setSearch(query);
     if (!query) {
@@ -167,7 +167,6 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
       });
       return;
     }
-
     try {
       setLoading(true);
       const config = {
@@ -186,7 +185,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
 
       user1._id === user._id ? setSelectedChat() : setSelectedChat(data);
       setFetchAgain(!fetchAgain);
-     // fetchMessages();
+      fetchMessages();
       setLoading(false);
     } catch (error) {
       console.log(error);

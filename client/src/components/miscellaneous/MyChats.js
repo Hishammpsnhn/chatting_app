@@ -10,7 +10,6 @@ function MyChats() {
   const [loggedUser, setLoggedUser] = useState();
   const { user, setSelectedChat, selectedChat, chats, setChats } = ChatState();
   const toast = useToast();
-
   const fetchChats = async () => {
    
     try {
