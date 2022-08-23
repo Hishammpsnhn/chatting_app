@@ -5,8 +5,8 @@ const Users = require("../models/userModel");
 
 
 const sendMessage = asyncHandler(async (req, res) => {
-  console.log("req.body")
-  console.log(req.body)
+//  console.log("req.body")
+//  console.log(req.body)
   const { content, chatId } = req.body;
   if (!content || !chatId) {
     console.log("invalid data passed into request");
@@ -38,12 +38,12 @@ const sendMessage = asyncHandler(async (req, res) => {
 });
 
 const allMessages = asyncHandler(async (req, res) => {
-    console.log(req.params)
+  //  console.log(req.params)
   try {
     const messages = await Message.find({ chat: req.params.chatId })
     .populate("sender","name email pic")
     .populate("chat");
-    console.log(messages)
+//    console.log(messages)
     res.json(messages)
 } catch (error) {
     res.status(400);

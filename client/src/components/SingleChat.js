@@ -16,16 +16,33 @@ import ProfileModal from "./miscellaneous/ProfileModal";
 import UpdateGroupChatModal from "./miscellaneous/UpdateGoupChatModal";
 import ScrollableChat from "./ScrollableChat";
 import "./style.css";
+import io from "socket.io-client";
+
+const socket = io.connect("http://localhost:5000");
 function SingleChat({ fetchAgain, setFetchAgain }) {
   const [message, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState();
   const [loading, setLoading] = useState(false);
-
+  const [socketConnected, setSocketConnected] = useState(false);
   const { user, selectedChat, setSelectedChat } = ChatState();
   const toast = useToast();
 
+  var selectedChatCompare;
+
+  useEffect(() => {
+    socket.emit("setup", user);
+    socket.on("connected", (message) => setSocketConnected(true));
+  }, []);
+
+  useEffect(() => {
+    fetchMessage();
+    selectedChatCompare = selectedChat;
+  }, [selectedChat]);
+
   const fetchMessage = async () => {
     if (!selectedChat) return;
+    setLoading(true);
+    console.log(selectedChat);
     try {
       const config = {
         headers: {
@@ -33,19 +50,17 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      setLoading(true);
-      console.log(selectedChat);
       const { data } = await axios.get(
         `/api/message/${selectedChat._id}`,
         config
       );
-      console.log(data);
       setMessage(data);
       setLoading(false);
+      socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
         title: "Failed to fetch message",
-        description: error.response.data,
+        description: " Failed to fetch message",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -53,13 +68,10 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
       });
     }
   };
-  useEffect(() => {
-    fetchMessage();
-  }, [selectedChat]);
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
-      console.log(selectedChat,newMessage)
+      console.log(selectedChat, newMessage);
       try {
         const config = {
           headers: {
@@ -67,6 +79,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
             Authorization: `Bearer ${user.token}`,
           },
         };
+        setNewMessage(" ");
         const { data } = await axios.post(
           "/api/message",
           {
@@ -75,13 +88,12 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
           },
           config
         );
-        setNewMessage(" ");
         console.log(data);
+        socket.emit("new Message", data);
         setMessage([...message, data]);
       } catch (error) {
         toast({
           title: "Failed to send message",
-          description: error.response.data,
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -90,6 +102,21 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
       }
     }
   };
+
+  useEffect(() => {
+    socket.on("message received", (newMessageRecived) => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessageRecived.chat._id
+      ) {
+        //give notification
+      } else {
+        console.log(newMessageRecived);
+        setMessage([...message, newMessageRecived]);
+      }
+    });
+  });
+
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
     // typin indicator

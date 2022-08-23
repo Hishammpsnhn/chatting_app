@@ -3,7 +3,7 @@ const UserModel = require("../models/userModel");
 const asyncHandler = require("express-async-handler");
 
 const protect = asyncHandler(async (req, res, next) => {
-  console.log("called protect")
+
   let token;
   if (
     req.headers.authorization &&
@@ -11,7 +11,6 @@ const protect = asyncHandler(async (req, res, next) => {
   ) {
     try {
       const token =  req.headers.authorization.split(" ")[1];
-      console.log(token);
       const isCustomAuth = token.length < 500;
       let decodeData;
       if (token && isCustomAuth) {
