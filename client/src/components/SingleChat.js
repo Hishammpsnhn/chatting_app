@@ -17,21 +17,35 @@ import UpdateGroupChatModal from "./miscellaneous/UpdateGoupChatModal";
 import ScrollableChat from "./ScrollableChat";
 import "./style.css";
 import io from "socket.io-client";
-
+import Lottie from "react-lottie";
+import animationData from "../Animation/typing.json";
 const socket = io.connect("http://localhost:5000");
+
 function SingleChat({ fetchAgain, setFetchAgain }) {
   const [message, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState();
   const [loading, setLoading] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [typing, setTyping] = useState(false);
+
   const { user, selectedChat, setSelectedChat } = ChatState();
   const toast = useToast();
 
   var selectedChatCompare;
-
+  const defaultOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
   useEffect(() => {
     socket.emit("setup", user);
-    socket.on("connected", (message) => setSocketConnected(true));
+    socket.on("connected", () => setSocketConnected(true));
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
   }, []);
 
   useEffect(() => {
@@ -71,7 +85,8 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
-      console.log(selectedChat, newMessage);
+      socket.emit("stop typing", selectedChat._id);
+
       try {
         const config = {
           headers: {
@@ -111,7 +126,6 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
       ) {
         //give notification
       } else {
-        console.log(newMessageRecived);
         setMessage([...message, newMessageRecived]);
       }
     });
@@ -119,7 +133,22 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
-    // typin indicator
+    if (!socketConnected) return;
+    if (!typing) {
+      setTyping(true);
+      socket.emit("typing", selectedChat._id);
+    }
+    let lastTyping = new Date().getTime();
+    var timerLength = 3000;
+    setTimeout(() => {
+      var timeNow = new Date().getTime();
+      var timeDiff = timeNow - lastTyping;
+
+      if (timeDiff >= timerLength) {
+        socket.emit("stop typing", selectedChat._id);
+        setTyping(false);
+      }
+    }, timerLength);
   };
 
   return (
@@ -183,6 +212,15 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
               </div>
             )}
             <FormControl onKeyDown={sendMessage}>
+              {isTyping ? (
+                <div>
+                  <Lottie options={defaultOptions} width={70}
+                  style= {{marginBottom: '5px',marginLeft: '10px'}}
+                  />
+                </div>
+              ) : (
+                <></>
+              )}
               <Input
                 variant="filled"
                 bg="#E0E0E0"

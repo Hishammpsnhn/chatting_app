@@ -43,16 +43,20 @@ io.on("connection", (socket) => {
     socket.join(room_id);
     console.log("user joined room:" + room_id);
   });
+
+  socket.on("typing", (room) => socket.in(room).emit("typing"));
+  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+
   socket.on("new Message", (newMessageRecived) => {
     console.log("new masg received: " + newMessageRecived);
     var chat = newMessageRecived.chat;
-    
+
     if (!chat.users) return console.log("chat.users not fouond");
-    
+
     chat.users.forEach((user) => {
-  if (user._id == newMessageRecived.sender._id) return;
-      socket.in(user._id).emit("message received",newMessageRecived);
-      console.log(newMessageRecived)
+      if (user._id == newMessageRecived.sender._id) return;
+      socket.in(user._id).emit("message received", newMessageRecived);
+      console.log(newMessageRecived);
     });
   });
 });
