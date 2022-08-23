@@ -29,7 +29,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
   const [isTyping, setIsTyping] = useState(false);
   const [typing, setTyping] = useState(false);
 
-  const { user, selectedChat, setSelectedChat } = ChatState();
+  const { user, selectedChat, setSelectedChat,notification, setNotification} = ChatState();
   const toast = useToast();
 
   var selectedChatCompare;
@@ -47,11 +47,6 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
   }, []);
-
-  useEffect(() => {
-    fetchMessage();
-    selectedChatCompare = selectedChat;
-  }, [selectedChat]);
 
   const fetchMessage = async () => {
     if (!selectedChat) return;
@@ -119,12 +114,22 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
   };
 
   useEffect(() => {
+    fetchMessage();
+    selectedChatCompare = selectedChat;
+  }, [selectedChat]);
+
+  useEffect(() => {
     socket.on("message received", (newMessageRecived) => {
+      console.log(selectedChatCompare,"||",newMessageRecived.chat._id)
       if (
         !selectedChatCompare ||
         selectedChatCompare._id !== newMessageRecived.chat._id
       ) {
         //give notification
+        if(!notification.includes(newMessageRecived)){
+          setNotification([newMessageRecived,...notification]);
+          setFetchAgain(!fetchAgain);
+        }
       } else {
         setMessage([...message, newMessageRecived]);
       }
