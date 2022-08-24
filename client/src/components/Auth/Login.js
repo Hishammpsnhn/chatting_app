@@ -16,7 +16,6 @@ function Login() {
   const toast = useToast();
   const navigate = useNavigate();
   const handleLogin = async () => {
-    console.log(email, password);
     if (!email || !password) {
       toast({
         title: "Please fill all the feilds",

@@ -60,7 +60,6 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const allUsers = asyncHandler(async (req, res) => {
-
   const keyword = req.query.search
     ? {
         $or: [
@@ -69,9 +68,19 @@ const allUsers = asyncHandler(async (req, res) => {
         ],
       }
     : {};
- 
-  const user = await userModel.find(keyword).find({_id:{$ne: req.query._id}})
-      res.send(user)
-});
 
-module.exports = { registerUser, loginUser, allUsers };
+  const user = await userModel
+    .find(keyword)
+    .find({ _id: { $ne: req.query._id } });
+  res.send(user);
+});
+const notification = asyncHandler(async (req, res)=>{
+   console.log(req.body);
+  // const user = await userModel.findById(req.user);
+  // console.log(user)  
+  // return;
+
+})
+
+
+module.exports = { registerUser, loginUser, allUsers,notification };

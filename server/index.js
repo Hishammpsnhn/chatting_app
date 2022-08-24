@@ -5,6 +5,7 @@ const connectDb = require("./config/db.js");
 const userRoutes = require("./Routes/userRouter");
 const chatRoutes = require("./Routes/chatRoutes");
 const messageRoutes = require("./Routes/messageRoutes");
+const notifRouter = require("./Routes/notifRouter");
 const { notfound, errorhandler } = require("./middleware/errorHandlers.js");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -23,6 +24,7 @@ app.get("/", (req, res) => {
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
+app.use("/api/notification", notifRouter);
 app.use(notfound);
 app.use(errorhandler);
 
@@ -56,7 +58,6 @@ io.on("connection", (socket) => {
     chat.users.forEach((user) => {
       if (user._id == newMessageRecived.sender._id) return;
       socket.in(user._id).emit("message received", newMessageRecived);
-      console.log(newMessageRecived);
     });
   });
 });

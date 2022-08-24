@@ -22,7 +22,6 @@ function Signup() {
   const handleClick = () => setShow(!show);
 
   const handleLogin = async() => {
-    console.log(name, email, password, confirmPassword);
     if (!name || !email || !password || !confirmPassword) {
       toast({
         title: "Please fill all the feilds",

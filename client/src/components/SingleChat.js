@@ -24,12 +24,14 @@ const socket = io.connect("http://localhost:5000");
 function SingleChat({ fetchAgain, setFetchAgain }) {
   const [message, setMessage] = useState([]);
   const [newMessage, setNewMessage] = useState();
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [typing, setTyping] = useState(false);
 
-  const { user, selectedChat, setSelectedChat,notification, setNotification} = ChatState();
+  const { user, selectedChat, setSelectedChat, notification, setNotification } =
+    ChatState();
   const toast = useToast();
 
   var selectedChatCompare;
@@ -51,7 +53,6 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
   const fetchMessage = async () => {
     if (!selectedChat) return;
     setLoading(true);
-    console.log(selectedChat);
     try {
       const config = {
         headers: {
@@ -98,7 +99,6 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
           },
           config
         );
-        console.log(data);
         socket.emit("new Message", data);
         setMessage([...message, data]);
       } catch (error) {
@@ -114,24 +114,22 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
   };
 
   useEffect(() => {
-    fetchMessage();
     selectedChatCompare = selectedChat;
+    fetchMessage();
   }, [selectedChat]);
 
   useEffect(() => {
     socket.on("message received", (newMessageRecived) => {
-      console.log(selectedChatCompare,"||",newMessageRecived.chat._id)
       if (
-        !selectedChatCompare ||
+        !selectedChatCompare || // if chat is not selected or doesn't match current chat
         selectedChatCompare._id !== newMessageRecived.chat._id
       ) {
-        //give notification
-        if(!notification.includes(newMessageRecived)){
-          setNotification([newMessageRecived,...notification]);
+        if (!notification.includes(newMessageRecived)) {
+          setNotification([newMessageRecived, ...notification]);
           setFetchAgain(!fetchAgain);
         }
       } else {
-        setMessage([...message, newMessageRecived]);
+        setMessages([...messages, newMessageRecived]);
       }
     });
   });
@@ -219,8 +217,10 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
             <FormControl onKeyDown={sendMessage}>
               {isTyping ? (
                 <div>
-                  <Lottie options={defaultOptions} width={70}
-                  style= {{marginBottom: '5px',marginLeft: '10px'}}
+                  <Lottie
+                    options={defaultOptions}
+                    width={70}
+                    style={{ marginBottom: "5px", marginLeft: "10px" }}
                   />
                 </div>
               ) : (
