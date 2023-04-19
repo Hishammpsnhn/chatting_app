@@ -5,26 +5,30 @@ const { findById, findByIdAndUpdate } = require("../models/chatModels");
 
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
+  console.log("userId param not sent with request");
   if (!userId) {
-    console.log("userId param not sent with request");
     return res.status(400);
   }
-
+  
   var isChat = await chat
-    .find({
-      isGroupChat: false,
-      $and: [
-        { users: { $elemMatch: { $eq: req.user._id } } },
-        { users: { $elemMatch: { $eq: userId } } },
-      ],
-    })
-    .populate("users", "-password")
-    .populate("latestMessage");
+  .find({
+    isGroupChat: false,
+    $and: [
+      { users: { $elemMatch: { $eq: req.user._id } } },
+      { users: { $elemMatch: { $eq: userId } } },
+    ],
+  })
+  .populate("users", "-password")
+  .populate("latestMessage");
+
   isChat = await Users.populate(isChat, {
     path: "latestMessage.sender",
     select: "name pic email",
   });
+  console.log("is chat",isChat)
+  
   if (isChat.length > 0) {
+    console.log("already in chats")
     res.send(isChat[0]);
   } else {
     var chatData = {
@@ -58,7 +62,6 @@ const fetchChat = asyncHandler(async (req, res) => {
           path: "latestMessage.sender",
           select: "name pic email",
         });
-        
         res.status(200).send(result);
       });
   } catch (error) {
@@ -68,10 +71,12 @@ const fetchChat = asyncHandler(async (req, res) => {
 });
 
 const createGroup = asyncHandler(async (req, res) => {
+  console.log(req.body.users);
   if (!req.body.users || !req.body.name) {
     res.status(400).send({ message: "Please fill all the fields" });
   }
   var users = JSON.parse(req.body.users);
+
   if (users.length < 2) {
     res.status(400).send({ message: "Please add two or more users" });
   }

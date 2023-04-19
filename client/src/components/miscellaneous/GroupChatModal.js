@@ -88,6 +88,16 @@ import {
         });
         return;
       }
+      if(selectedUsers.length < 2){
+        toast({
+          title: "Please add two or more users",
+          status: "warning",
+          duration: 5000,
+          isClosable: true,
+          position: "top",
+        });
+        return;
+      }
   
       try {
         const config = {

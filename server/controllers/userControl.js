@@ -68,7 +68,6 @@ const allUsers = asyncHandler(async (req, res) => {
         ],
       }
     : {};
-
   const user = await userModel
     .find(keyword)
     .find({ _id: { $ne: req.query._id } });

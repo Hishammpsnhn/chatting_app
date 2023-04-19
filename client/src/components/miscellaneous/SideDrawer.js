@@ -94,9 +94,10 @@ function SideDrawer() {
         },
       };
       const { data } = await axios.post("/api/chat", { userId }, config);
-      if (!chats.find((c) => c.id === data.id)) setChats([data, ...chats]);
+      console.log(data)
+      console.log(chats);
+      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
       setSelectedChat(data);
-      setChats([data, ...chats]);
       setLoadingChat(false);
       onClose();
     } catch (error) {
@@ -136,12 +137,12 @@ function SideDrawer() {
           <Menu>
             <MenuButton p={1}>
               <NotificationBadge
-              count={notification.length}
-              effect={Effect.SCALE}
+                count={notification.length}
+                effect={Effect.SCALE}
               />
               <BellIcon fontSize="2xl" m={1} />
-              </MenuButton>
-              <MenuList pl={2}>
+            </MenuButton>
+            <MenuList pl={2}>
               {!notification.length && "No New Messages"}
               {notification.map((notif) => (
                 <MenuItem

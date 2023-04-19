@@ -22,14 +22,17 @@ const sendMessage = asyncHandler(async (req, res) => {
     var message = await Message.create(newMessage);
     message = await message.populate("sender", "name pic");
     message = await message.populate("chat");
+  
     message = await Users.populate(message, {
       path: "chat.users",
       select: "name pic email",
     });
+  
+
     await chat.findByIdAndUpdate(req.body.chatId, {
       latestMessage: message,
     });
-    // console.log(message)
+    console.log(message);
     res.json(message);
   } catch (error) {
     res.status(400);
