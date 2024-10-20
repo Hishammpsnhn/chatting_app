@@ -42,11 +42,11 @@ io.on("connection", (socket) => {
   socket.on("setup", async (userData) => {
     console.log(`User Connected: ${socket.id} `);
     socket.userId = userData._id;
-    // const updatedUser = await Users.findByIdAndUpdate(
-    //   userData._id,
-    //   { status: "online" },
-    //   { new: true }
-    // );
+    const updatedUser = await Users.findByIdAndUpdate(
+      userData._id,
+      { status: "online" },
+      { new: true }
+    );
     socket.broadcast.emit("userOnline", userData._id);
     socket.join(userData._id);
     socket.emit("connected");
@@ -74,11 +74,11 @@ io.on("connection", (socket) => {
   socket.on("disconnect", async () => {
     const userId = socket.userId;
     console.log(`User Disconnected: ${socket.id}${userId}`);
-    // const updatedUser = await Users.findByIdAndUpdate(
-    //   userId,
-    //   { status: "offline" },
-    //   { new: true }
-    // );
+    const updatedUser = await Users.findByIdAndUpdate(
+      userId,
+      { status: "offline" },
+      { new: true }
+    );
     if (userId) {
       socket.broadcast.emit("userOffline", userId);
     }

@@ -5,6 +5,9 @@ export const getSender = (loggedUser, users) => {
 export const getSenderFull = (loggedUser, users) => {
   return users[0]._id === loggedUser._id ? users[1] : users[0];
 };
+export const NongetSenderFull = (loggedUser, users) => {
+  return users[0]._id === loggedUser._id ? users[0] : users[1];
+};
 
 export const isSameSender = (messsages, m, i, userId) => {
   return (

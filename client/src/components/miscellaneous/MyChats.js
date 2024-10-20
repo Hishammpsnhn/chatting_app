@@ -2,7 +2,7 @@ import { AddIcon } from "@chakra-ui/icons";
 import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { getSender, getSenderFull } from "../../config/ChatLogics";
+import { getSender, getSenderFull, NongetSenderFull } from "../../config/ChatLogics";
 import { ChatState } from "../../Context/ChatProvider";
 import GroupChatModal from "./GroupChatModal";
 import { io } from "socket.io-client";
@@ -11,9 +11,12 @@ function MyChats() {
   const [loggedUser, setLoggedUser] = useState();
   const { user, setSelectedChat, selectedChat, chats, setChats } = ChatState();
   const [onlineUsers, setOnlineUsers] = useState([]);
+  
   const socket = io.connect("http://localhost:5000");
 
   const toast = useToast();
+
+  // Fetch chats from API
   const fetchChats = async () => {
     try {
       const config = {
@@ -23,12 +26,11 @@ function MyChats() {
       };
 
       const { data } = await axios.get("/api/chat", config);
-
       setChats(data);
     } catch (error) {
       toast({
-        title: "Error Occured!",
-        description: "Failed to Load the chats",
+        title: "Error Occurred!",
+        description: "Failed to load the chats",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -59,7 +61,7 @@ function MyChats() {
       socket.off("userOffline");
     };
   }, []);
-  console.log(onlineUsers);
+console.log(onlineUsers)
   return (
     <Box
       display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
@@ -92,6 +94,7 @@ function MyChats() {
           </Button>
         </GroupChatModal>
       </Box>
+
       <Box
         display="flex"
         flexDir="column"
@@ -105,13 +108,11 @@ function MyChats() {
         {chats ? (
           <Stack overflowY="scroll">
             {chats.map((chat) => {
-              let online = false
-              for(let ids of onlineUsers){
-                if(getSenderFull(loggedUser, chat.users)._id === ids){
-                  online = true
-                
-                }
-              }
+              const sender = getSenderFull(loggedUser, chat.users);
+
+
+              const isOnline = onlineUsers.includes(sender._id); // Check if sender is online
+
               return (
                 <Box
                   onClick={() => setSelectedChat(chat)}
@@ -124,18 +125,15 @@ function MyChats() {
                   key={chat._id}
                 >
                   <Text>
-                    {!chat.isGroupChat
-                      ? getSender(loggedUser, chat.users)
-                      : chat.chatName}
+                    {!chat.isGroupChat ? getSender(loggedUser, chat.users) : chat.chatName}
                   </Text>
-                  {/* {!chat.isGroupChat &&
-                    getSenderFull(loggedUser, chat.users).status ===
-                      "online" && (
-                      <Text color="green" fontSize="xs">
-                        Online
-                      </Text>
-                    )} */}
-                    {online && <Text color="green" fontSize="xs">Online</Text>}
+                  
+                  {!chat.isGroupChat && (
+                    <Text color={isOnline ? "green" : "gray"} fontSize="xs">
+                      {isOnline ? "Online" : "Offline"}
+                    </Text>
+                  )}
+
                   {chat.latestMessage && (
                     <Text fontSize="xs">
                       <b>{chat.latestMessage.sender.name} : </b>
@@ -149,7 +147,7 @@ function MyChats() {
             })}
           </Stack>
         ) : (
-          <spam></spam>
+          <span>No chats available</span>
         )}
       </Box>
     </Box>
