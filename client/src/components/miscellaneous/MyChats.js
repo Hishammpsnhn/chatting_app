@@ -2,16 +2,19 @@ import { AddIcon } from "@chakra-ui/icons";
 import { Box, Button, Stack, Text, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { getSender } from "../../config/ChatLogics";
+import { getSender, getSenderFull } from "../../config/ChatLogics";
 import { ChatState } from "../../Context/ChatProvider";
 import GroupChatModal from "./GroupChatModal";
+import { io } from "socket.io-client";
 
 function MyChats() {
   const [loggedUser, setLoggedUser] = useState();
   const { user, setSelectedChat, selectedChat, chats, setChats } = ChatState();
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const socket = io.connect("http://localhost:5000");
+
   const toast = useToast();
   const fetchChats = async () => {
-   
     try {
       const config = {
         headers: {
@@ -20,7 +23,7 @@ function MyChats() {
       };
 
       const { data } = await axios.get("/api/chat", config);
-      
+
       setChats(data);
     } catch (error) {
       toast({
@@ -39,6 +42,24 @@ function MyChats() {
     fetchChats();
   }, []);
 
+  useEffect(() => {
+    // Listen for 'userOnline' event
+    socket.on("userOnline", (userId) => {
+      setOnlineUsers((prevUsers) => [...prevUsers, userId]);
+    });
+
+    // Listen for 'userOffline' event
+    socket.on("userOffline", (userId) => {
+      setOnlineUsers((prevUsers) => prevUsers.filter((id) => id !== userId));
+    });
+
+    // Cleanup on component unmount
+    return () => {
+      socket.off("userOnline");
+      socket.off("userOffline");
+    };
+  }, []);
+  console.log(onlineUsers);
   return (
     <Box
       display={{ base: selectedChat ? "none" : "flex", md: "flex" }}
@@ -83,32 +104,49 @@ function MyChats() {
       >
         {chats ? (
           <Stack overflowY="scroll">
-            {chats.map((chat) => (
-              <Box
-                onClick={() => setSelectedChat(chat)}
-                cursor="pointer"
-                bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
-                color={selectedChat === chat ? "white" : "black"}
-                px={3}
-                py={2}
-                borderRadius="lg"
-                key={chat._id}
-              >
-                <Text>
-                  {!chat.isGroupChat
-                    ? getSender(loggedUser, chat.users)
-                    : chat.chatName}
-                </Text>
-                {chat.latestMessage && (
-                  <Text fontSize="xs">
-                    <b>{chat.latestMessage.sender.name} : </b>
-                    {chat.latestMessage.content.length > 50
-                      ? chat.latestMessage.content.substring(0, 51) + "..."
-                      : chat.latestMessage.content}
+            {chats.map((chat) => {
+              let online = false
+              for(let ids of onlineUsers){
+                if(getSenderFull(loggedUser, chat.users)._id === ids){
+                  online = true
+                
+                }
+              }
+              return (
+                <Box
+                  onClick={() => setSelectedChat(chat)}
+                  cursor="pointer"
+                  bg={selectedChat === chat ? "#38B2AC" : "#E8E8E8"}
+                  color={selectedChat === chat ? "white" : "black"}
+                  px={3}
+                  py={2}
+                  borderRadius="lg"
+                  key={chat._id}
+                >
+                  <Text>
+                    {!chat.isGroupChat
+                      ? getSender(loggedUser, chat.users)
+                      : chat.chatName}
                   </Text>
-                )}
-              </Box>
-            ))}
+                  {/* {!chat.isGroupChat &&
+                    getSenderFull(loggedUser, chat.users).status ===
+                      "online" && (
+                      <Text color="green" fontSize="xs">
+                        Online
+                      </Text>
+                    )} */}
+                    {online && <Text color="green" fontSize="xs">Online</Text>}
+                  {chat.latestMessage && (
+                    <Text fontSize="xs">
+                      <b>{chat.latestMessage.sender.name} : </b>
+                      {chat.latestMessage.content.length > 50
+                        ? chat.latestMessage.content.substring(0, 51) + "..."
+                        : chat.latestMessage.content}
+                    </Text>
+                  )}
+                </Box>
+              );
+            })}
           </Stack>
         ) : (
           <spam></spam>

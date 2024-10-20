@@ -9,6 +9,7 @@ const notifRouter = require("./Routes/notifRouter");
 const { notfound, errorhandler } = require("./middleware/errorHandlers.js");
 const http = require("http");
 const { Server } = require("socket.io");
+const Users = require("./models/userModel.js");
 
 const app = express();
 dotenv.config();
@@ -37,8 +38,16 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log(`User Connected: ${socket.id}`);
-  
-  socket.on("setup", (userData) => {
+
+  socket.on("setup", async (userData) => {
+    console.log(`User Connected: ${socket.id} `);
+    socket.userId = userData._id;
+    // const updatedUser = await Users.findByIdAndUpdate(
+    //   userData._id,
+    //   { status: "online" },
+    //   { new: true }
+    // );
+    socket.broadcast.emit("userOnline", userData._id);
     socket.join(userData._id);
     socket.emit("connected");
   });
@@ -47,7 +56,7 @@ io.on("connection", (socket) => {
     console.log("user joined room:" + room_id);
   });
 
-  socket.on("typing", (room) => socket.in(room).emit("typing",room));
+  socket.on("typing", (room) => socket.in(room).emit("typing", room));
   socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
 
   socket.on("new Message", (newMessageRecived) => {
@@ -60,6 +69,19 @@ io.on("connection", (socket) => {
       if (user._id == newMessageRecived.sender._id) return;
       socket.in(user._id).emit("message received", newMessageRecived);
     });
+  });
+
+  socket.on("disconnect", async () => {
+    const userId = socket.userId;
+    console.log(`User Disconnected: ${socket.id}${userId}`);
+    // const updatedUser = await Users.findByIdAndUpdate(
+    //   userId,
+    //   { status: "offline" },
+    //   { new: true }
+    // );
+    if (userId) {
+      socket.broadcast.emit("userOffline", userId);
+    }
   });
 });
 
