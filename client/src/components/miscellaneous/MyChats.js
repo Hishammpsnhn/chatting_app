@@ -61,7 +61,6 @@ function MyChats() {
       socket.off("userOffline");
     };
   }, []);
-console.log(onlineUsers)
   return (
     <Box
       display={{ base: selectedChat ? "none" : "flex", md: "flex" }}

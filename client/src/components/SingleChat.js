@@ -1,4 +1,4 @@
-import { ArrowBackIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, PhoneIcon } from "@chakra-ui/icons";
 import {
   Box,
   FormControl,
@@ -30,8 +30,8 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
   const [isTyping, setIsTyping] = useState(false);
   const [typing, setTyping] = useState(false);
 
-  const { user, selectedChat, setSelectedChat, notification,
-    setNotification } = ChatState();
+  const { user, selectedChat, setSelectedChat, notification, setNotification } =
+    ChatState();
   const toast = useToast();
 
   var selectedChatCompare;
@@ -46,7 +46,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
   useEffect(() => {
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", (room) =>  setIsTyping(true));
+    socket.on("typing", (room) => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
   }, []);
 
@@ -101,7 +101,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
         );
         console.log(data);
         socket.emit("new Message", data);
-        console.log(data)
+        console.log(data);
         setMessage([...message, data]);
       } catch (error) {
         toast({
@@ -122,10 +122,9 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
   }, [selectedChat]);
 
   useEffect(() => {
-    console.log(selectedChat)
+    console.log(selectedChat);
     socket.on("message received", (newMessageRecived) => {
-
-      console.log(message)
+      console.log(message);
       if (!selectedChat) {
         if (!notification.includes(newMessageRecived)) {
           setNotification([newMessageRecived, ...notification]);
@@ -141,7 +140,6 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
           }
         }
       }
-      
     });
   });
 
@@ -165,6 +163,21 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
     }, timerLength);
   };
 
+  const handleVedio = () => {
+    navigator.mediaDevices
+      .getUserMedia({
+        video: true,
+        audio: true,
+      })
+      .then((stream) => {
+        // Some more code
+        console.log(stream);
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
+  };
+
   return (
     <>
       {selectedChat ? (
@@ -184,6 +197,8 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
               icon={<ArrowBackIcon />}
               onClick={() => setSelectedChat()}
             />
+
+            <IconButton icon={<PhoneIcon />} onClick={handleVedio} />
 
             {!selectedChat.isGroupChat ? (
               <>
@@ -226,13 +241,7 @@ function SingleChat({ fetchAgain, setFetchAgain }) {
               </div>
             )}
             <FormControl onKeyDown={sendMessage}>
-              {isTyping ? (
-                <div>
-                  typing...
-                </div>
-              ) : (
-                <></>
-              )}
+              {isTyping ? <div>typing...</div> : <></>}
               <Input
                 variant="filled"
                 bg="#E0E0E0"
